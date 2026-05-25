@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Romil Chauhan — Computer Engineering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #060810;
+      --bg2:     #0a0e16;
+      --bg3:     #0e1420;
+      --surface: #111822;
+      --border:  #192535;
+      --accent:  #00d4ff;
+      --accent2: #00ff94;
+      --accent3: #ff4d6d;
+      --accent4: #a78bfa;
+      --text:    #dde4ed;
+      --muted:   #56707f;
+      --dim:     #2a3d52;
+      --glow:    rgba(0,212,255,.14);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ── PURE CSS BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(0,212,255,.04) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(167,139,250,.04) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0,255,148,.02) 0%, transparent 70%);
+      pointer-events: none;
+      animation: bgPulse 12s ease-in-out infinite alternate;
+    }
+    @keyframes bgPulse {
+      0%   { opacity: .7; }
+      100% { opacity: 1; }
+    }
+
+    /* grid lines overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    }
+
+    .wrap { position: relative; z-index: 2; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(6,8,16,.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .logo {
+      font-family: 'Space Mono', monospace;
+      font-size: .82rem; color: var(--accent); letter-spacing: .1em;
+    }
+    .logo em { color: var(--muted); font-style: normal; }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; align-items: center; }
+    .nav-links a {
+      font-family: 'Space Mono', monospace; font-size: .65rem;
+      color: var(--muted); text-decoration: none;
+      letter-spacing: .1em; text-transform: uppercase; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-badge {
+      font-family: 'Space Mono', monospace; font-size: .58rem;
+      color: var(--bg); background: var(--accent2);
+      padding: .2rem .7rem; border-radius: 20px; letter-spacing: .06em;
+      animation: badgePulse 2.5s ease-in-out infinite;
+    }
+    @keyframes badgePulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(0,255,148,.4); }
+      50%      { box-shadow: 0 0 0 6px rgba(0,255,148,0); }
+    }
+
+    /* hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 1.5px;
+      background: var(--muted); transition: all .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* mobile nav drawer */
+    .mobile-nav {
+      display: none; position: fixed; top: 56px; left: 0; right: 0;
+      background: rgba(6,8,16,.97); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column; padding: 1.5rem 2rem; gap: 1.2rem;
+      z-index: 99;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-family: 'Space Mono', monospace; font-size: .75rem;
+      color: var(--muted); text-decoration: none;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .5rem 0; border-bottom: 1px solid var(--border);
+      transition: color .2s;
+    }
+    .mobile-nav a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 8rem 2rem 5rem; position: relative;
+    }
+    .hero-inner { max-width: 800px; width: 100%; }
+
+    .hero-status {
+      display: inline-flex; align-items: center; gap: .6rem;
+      font-family: 'Space Mono', monospace; font-size: .65rem;
+      color: var(--accent2); letter-spacing: .18em; text-transform: uppercase;
+      margin-bottom: 2rem;
+      opacity: 0; animation: fadeUp .7s .1s forwards;
+    }
+    .sdot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent2);
+      animation: sdotPulse 2s ease-in-out infinite;
+    }
+    @keyframes sdotPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(0,255,148,.5); }
+      50%      { box-shadow: 0 0 0 5px rgba(0,255,148,0); }
+    }
+
+    .hero-name {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3.2rem, 10vw, 8.5rem);
+      font-weight: 800; line-height: .9; letter-spacing: -.04em;
+      margin-bottom: 1.2rem;
+      opacity: 0; animation: fadeUp .8s .25s forwards;
+    }
+    .hero-name .outline {
+      color: transparent;
+      -webkit-text-stroke: 2px var(--accent);
+    }
+    .hero-name .glitch {
+      position: relative; display: inline-block;
+      color: transparent; -webkit-text-stroke: 2px var(--accent);
+    }
+    .hero-name .glitch::before {
+      content: attr(data-text); position: absolute; top: 0; left: 0;
+      color: transparent; -webkit-text-stroke: 2px var(--accent3);
+      animation: glitch1 5s infinite;
+      clip-path: polygon(0 0,100% 0,100% 35%,0 35%);
+    }
+    .hero-name .glitch::after {
+      content: attr(data-text); position: absolute; top: 0; left: 0;
+      color: transparent; -webkit-text-stroke: 2px var(--accent4);
+      animation: glitch2 5s infinite;
+      clip-path: polygon(0 65%,100% 65%,100% 100%,0 100%);
+    }
+    @keyframes glitch1 {
+      0%,92%,100%{transform:translate(0)} 93%{transform:translate(-3px,-1px)}
+      94%{transform:translate(3px,1px)} 95%{transform:translate(-2px,0)}
+      96%{transform:translate(2px,-1px)} 97%{transform:translate(0)}
+    }
+    @keyframes glitch2 {
+      0%,92%,100%{transform:translate(0)} 93%{transform:translate(3px,1px)}
+      94%{transform:translate(-3px,-1px)} 95%{transform:translate(2px,0)}
+      96%{transform:translate(-2px,1px)} 97%{transform:translate(0)}
+    }
+
+    .hero-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(.62rem, 1.3vw, .85rem);
+      color: var(--muted); letter-spacing: .1em; margin-bottom: 1.6rem;
+      opacity: 0; animation: fadeUp .8s .4s forwards;
+    }
+    .hero-sub .sep { color: var(--accent); margin: 0 .4rem; }
+
+    .hero-desc {
+      font-size: clamp(.95rem, 2vw, 1.05rem);
+      color: var(--muted); line-height: 1.85; max-width: 500px;
+      margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp .8s .55s forwards;
+    }
+    .hero-desc strong { color: var(--text); font-weight: 500; }
+
+    .hero-cta {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp .8s .7s forwards;
+    }
+    .btn {
+      font-family: 'Space Mono', monospace; font-size: .68rem;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .85rem 1.8rem; border-radius: 3px;
+      text-decoration: none; transition: all .22s ease;
+      display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-primary {
+      background: var(--accent); color: var(--bg);
+      border: 1px solid var(--accent);
+    }
+    .btn-primary:hover {
+      background: transparent; color: var(--accent);
+      box-shadow: 0 0 24px var(--glow);
+    }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent4); color: var(--accent4); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; margin-top: 3.5rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp .8s .85s forwards;
+    }
+    .stat-n {
+      font-family: 'Syne', sans-serif; font-size: 2.2rem;
+      font-weight: 800; line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent4));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-l {
+      font-family: 'Space Mono', monospace; font-size: .58rem;
+      color: var(--muted); letter-spacing: .12em; text-transform: uppercase;
+    }
+
+    .scroll-hint {
+      margin-top: 3rem;
+      font-family: 'Space Mono', monospace; font-size: .6rem;
+      color: var(--dim); letter-spacing: .15em; text-transform: uppercase;
+      display: flex; align-items: center; gap: .8rem;
+      opacity: 0; animation: fadeUp .8s 1.1s forwards;
+    }
+    .scroll-hint .arr { animation: bounce 1.8s ease-in-out infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 2rem; position: relative; }
+    .sec-hd {
+      margin-bottom: 3.5rem;
+      display: flex; align-items: baseline; gap: 1.2rem;
+    }
+    .sec-n {
+      font-family: 'Space Mono', monospace; font-size: .65rem;
+      color: var(--accent); letter-spacing: .1em;
+    }
+    .sec-t {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800; letter-spacing: -.025em; line-height: 1;
+    }
+    .sec-line { flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
+
+    /* ── ABOUT ── */
+    #about { background: var(--bg2); }
+    .about-grid {
+      display: grid; grid-template-columns: 1.1fr 1fr;
+      gap: 4rem; align-items: start;
+    }
+    .about-text p {
+      color: var(--muted); line-height: 1.9;
+      margin-bottom: 1.2rem; font-size: 1rem;
+    }
+    .about-text strong { color: var(--text); font-weight: 500; }
+    .tech-lbl {
+      font-family: 'Space Mono', monospace; font-size: .63rem;
+      color: var(--accent); letter-spacing: .15em; text-transform: uppercase;
+      margin: 2.2rem 0 1rem;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .chip {
+      font-family: 'Space Mono', monospace; font-size: .6rem;
+      color: var(--muted); padding: .35rem .75rem;
+      border: 1px solid var(--border); border-radius: 20px;
+      transition: all .2s; letter-spacing: .04em;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--glow); }
+
+    .terminal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(0,212,255,.04);
+      position: sticky; top: 6rem;
+    }
+    .t-bar {
+      background: var(--bg3); padding: .7rem 1rem;
+      display: flex; align-items: center; gap: .4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .d { width: 10px; height: 10px; border-radius: 50%; }
+    .dr{background:#ff5f57} .dy{background:#febc2e} .dg{background:#28c840}
+    .t-name { font-family: 'Space Mono', monospace; font-size: .6rem; color: var(--muted); margin-left: .4rem; flex: 1; text-align: center; }
+    .t-body { padding: 1.4rem; font-family: 'Space Mono', monospace; font-size: .68rem; line-height: 2; }
+    .tp{color:var(--accent2)} .tc{color:var(--text)}
+    .to{color:var(--muted)}  .tk{color:var(--accent)}
+    .tv{color:var(--accent3)} .tb{color:var(--accent4)}
+    .t-cur {
+      display: inline-block; width: 7px; height: 13px;
+      background: var(--accent); vertical-align: middle; margin-left: 1px;
+      animation: blink .9s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── PROJECTS ── */
+    #projects { background: var(--bg); }
+    .proj-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+    .proj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.8rem;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+      position: relative; overflow: hidden;
+    }
+    .proj-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: linear-gradient(to right, var(--accent), var(--accent4));
+      transition: width .3s ease;
+    }
+    .proj-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,212,255,.2);
+      box-shadow: 0 16px 40px rgba(0,0,0,.4);
+    }
+    .proj-card:hover::after { width: 100%; }
+
+    .proj-card.featured {
+      grid-column: span 2;
+      background: linear-gradient(135deg, var(--surface), var(--bg3));
+      border-color: rgba(0,212,255,.1);
+    }
+    .feat-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+    .feat-badge {
+      font-family: 'Space Mono', monospace; font-size: .56rem;
+      color: var(--accent2); border: 1px solid rgba(0,255,148,.25);
+      padding: .18rem .55rem; border-radius: 20px; letter-spacing: .1em;
+      display: inline-block; margin-bottom: .7rem;
+    }
+    .proj-ico {
+      font-size: 1.5rem; width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+    .proj-name {
+      font-family: 'Syne', sans-serif; font-size: 1.1rem;
+      font-weight: 700; margin-bottom: .5rem; color: var(--text);
+    }
+    .proj-desc { font-size: .85rem; color: var(--muted); line-height: 1.75; margin-bottom: 1.3rem; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .tag {
+      font-family: 'Space Mono', monospace; font-size: .56rem;
+      padding: .22rem .55rem; border: 1px solid var(--border);
+      border-radius: 2px; color: var(--muted); letter-spacing: .04em;
+    }
+    .ta{border-color:rgba(0,212,255,.25);color:var(--accent)}
+    .tg{border-color:rgba(0,255,148,.25);color:var(--accent2)}
+    .tr{border-color:rgba(255,77,109,.25);color:var(--accent3)}
+    .tv2{border-color:rgba(167,139,250,.25);color:var(--accent4)}
+
+    /* ── SKILLS ── */
+    #skills { background: var(--bg2); }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.2rem;
+    }
+    .sk-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.6rem;
+      transition: border-color .25s, transform .25s;
+      position: relative; overflow: hidden;
+    }
+    .sk-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(to right, var(--accent), var(--accent4));
+      transform: scaleX(0); transform-origin: left; transition: transform .3s;
+    }
+    .sk-card:hover { border-color: rgba(0,212,255,.18); transform: translateY(-3px); }
+    .sk-card:hover::before { transform: scaleX(1); }
+    .sk-title {
+      font-family: 'Space Mono', monospace; font-size: .63rem;
+      color: var(--accent); letter-spacing: .14em; text-transform: uppercase;
+      margin-bottom: 1.1rem; display: flex; align-items: center; gap: .5rem;
+    }
+    .sk-title::before { content:''; width:14px; height:1px; background:var(--accent); }
+    .sk-list { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .sk-list li {
+      font-size: .85rem; color: var(--muted);
+      display: flex; align-items: center; gap: .5rem; transition: color .2s;
+    }
+    .sk-list li::before { content:'◆'; font-size:.33rem; color:var(--accent2); flex-shrink:0; }
+    .sk-list li:hover { color: var(--text); }
+
+    /* ── EXPERIENCE ── */
+    #experience { background: var(--bg); }
+    .tl { position: relative; padding-left: 2rem; }
+    .tl::before {
+      content: ''; position: absolute; left: 0; top: .3rem; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent4), transparent);
+    }
+    .tl-item { position: relative; padding-bottom: 3rem; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item::before {
+      content: ''; position: absolute; left: -2.45rem; top: .3rem;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--accent);
+      box-shadow: 0 0 12px var(--glow); transition: background .25s;
+    }
+    .tl-item:hover::before { background: var(--accent); }
+    .tl-date { font-family:'Space Mono',monospace; font-size:.62rem; color:var(--accent2); letter-spacing:.1em; margin-bottom:.3rem; }
+    .tl-role { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:700; color:var(--text); margin-bottom:.2rem; }
+    .tl-org { font-family:'Space Mono',monospace; font-size:.65rem; color:var(--muted); margin-bottom:.9rem; }
+    .org-tag { font-size:.56rem; padding:.14rem .5rem; border:1px solid var(--border); border-radius:20px; margin-left:.4rem; color:var(--dim); }
+    .tl-pts { list-style:none; display:flex; flex-direction:column; gap:.45rem; }
+    .tl-pts li { font-size:.88rem; color:var(--muted); padding-left:1.2rem; position:relative; line-height:1.65; }
+    .tl-pts li::before { content:'→'; position:absolute; left:0; color:var(--accent); font-size:.7rem; }
+
+    .edu-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 2rem; margin-top: 2.5rem;
+      display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;
+      transition: border-color .25s;
+    }
+    .edu-card:hover { border-color: rgba(0,212,255,.18); }
+    .edu-deg { font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:700; color:var(--text); margin-bottom:.3rem; }
+    .edu-sch { font-family:'Space Mono',monospace; font-size:.65rem; color:var(--muted); margin-bottom:.8rem; }
+    .edu-gpa {
+      font-family:'Syne',sans-serif; font-size:2.4rem;
+      font-weight:800; line-height:1;
+      background:linear-gradient(135deg,var(--accent),var(--accent4));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .edu-gpa-l { font-family:'Space Mono',monospace; font-size:.56rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+    .edu-yr { font-family:'Space Mono',monospace; font-size:.62rem; color:var(--accent2); margin-top:.4rem; }
+    .edu-stat { text-align:right; }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--bg2); text-align: center; }
+    .ct-inner { max-width: 560px; margin: 0 auto; }
+    .ct-tag {
+      font-family:'Space Mono',monospace; font-size:.65rem;
+      color:var(--accent2); letter-spacing:.2em; text-transform:uppercase;
+      margin-bottom:1.4rem;
+      display:flex; align-items:center; justify-content:center; gap:.8rem;
+    }
+    .ct-tag::before,.ct-tag::after { content:''; flex:1; max-width:40px; height:1px; background:var(--accent2); }
+    .ct-head {
+      font-family:'Syne',sans-serif;
+      font-size:clamp(2.3rem,6vw,4rem);
+      font-weight:800; letter-spacing:-.03em; line-height:1; margin-bottom:1.4rem;
+    }
+    .ct-head .stroke { color:transparent; -webkit-text-stroke:1.5px var(--accent); }
+    .ct-sub { font-size:.97rem; color:var(--muted); line-height:1.8; margin-bottom:2.5rem; }
+    .ct-links { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; }
+    .ct-link {
+      font-family:'Space Mono',monospace; font-size:.65rem;
+      color:var(--muted); text-decoration:none;
+      letter-spacing:.08em; padding:.8rem 1.5rem;
+      border:1px solid var(--border); border-radius:3px;
+      transition:all .22s; display:flex; align-items:center; gap:.5rem;
+    }
+    .ct-link:hover { border-color:var(--accent); color:var(--accent); background:var(--glow); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding:1.6rem 2rem; background:var(--bg);
+      border-top:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;
+    }
+    .fl { font-family:'Space Mono',monospace; font-size:.58rem; color:var(--dim); }
+    .fr { font-family:'Space Mono',monospace; font-size:.58rem; color:var(--dim); }
+    .fr span { color:var(--accent3); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity .65s ease, transform .65s ease; }
+    .reveal.vis { opacity:1; transform:translateY(0); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar{width:3px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:linear-gradient(var(--accent),var(--accent4));border-radius:2px}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:768px){
+      nav { padding:.9rem 1.2rem; }
+      .nav-links { display:none; }
+      .hamburger { display:flex; }
+      #hero { padding:6rem 1.2rem 4rem; }
+      section { padding:4.5rem 1.2rem; }
+      .about-grid { grid-template-columns:1fr; gap:2.5rem; }
+      .proj-card.featured { grid-column:span 1; }
+      .feat-inner { grid-template-columns:1fr; }
+      .edu-card { grid-template-columns:1fr; }
+      .edu-stat { text-align:left; }
+      footer { flex-direction:column; text-align:center; }
+      .hero-stats { gap:2rem; }
+    }
+    @media(max-width:480px){
+      .proj-grid { grid-template-columns:1fr; }
+      .skills-grid { grid-template-columns:1fr; }
+      .hero-name { font-size:clamp(2.8rem,14vw,5rem); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">RC<em>/</em>dev</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><span class="nav-badge">Open to Work</span></li>
+    </ul>
+    <button class="hamburger" id="hbg" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE NAV -->
+  <div class="mobile-nav" id="mnav">
+    <a href="#about" onclick="closeMenu()">About</a>
+    <a href="#projects" onclick="closeMenu()">Projects</a>
+    <a href="#skills" onclick="closeMenu()">Skills</a>
+    <a href="#experience" onclick="closeMenu()">Experience</a>
+    <a href="#contact" onclick="closeMenu()">Contact</a>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div class="hero-status">
+        <span class="sdot"></span>
+        Available · Toronto, ON · Part-Time &amp; Internships
+      </div>
+      <h1 class="hero-name">
+        Romil<br>
+        <span class="glitch" data-text="Chauhan">Chauhan</span>
+      </h1>
+      <div class="hero-sub">
+        Computer Engineering Technology
+        <span class="sep">//</span>
+        Seneca Polytechnic
+        <span class="sep">·</span>
+        Graduating 2026
+      </div>
+      <p class="hero-desc">
+        I build things that run <strong>close to the metal</strong> —
+        embedded firmware, real-time operating systems, and hardware-software
+        interfaces. Fluent in <strong>C, C++, Python</strong>,
+        comfortable with Linux, networking, and cybersecurity.
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">View My Work ↓</a>
+        <a href="mailto:chauhanromil1@gmail.com" class="btn btn-ghost">Get In Touch →</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-n" data-count="7" data-suffix="+">7+</div>
+          <div class="stat-l">Projects</div>
+        </div>
+        <div>
+          <div class="stat-n" data-count="5" data-suffix="+">5+</div>
+          <div class="stat-l">Languages</div>
+        </div>
+        <div>
+          <div class="stat-n" data-float="3.0">3.0</div>
+          <div class="stat-l">CGPA</div>
+        </div>
+      </div>
+      <div class="scroll-hint"><span class="arr">↓</span> Scroll to explore</div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="sec-hd reveal">
+      <span class="sec-n">01</span>
+      <h2 class="sec-t">About Me</h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="about-grid">
+      <div class="reveal">
+        <p>I'm a <strong>Computer Engineering Technology student</strong> at Seneca Polytechnic, graduating 2026. My work spans embedded firmware, real-time OS programming, hardware circuit design, Linux server administration, and cybersecurity assessment.</p>
+        <p>I'm drawn to problems at the intersection of hardware and software — where a line of code <strong>directly controls something physical</strong>. From programming NXP microcontrollers with FreeRTOS, to designing PCBs from scratch and running penetration tests in isolated lab environments.</p>
+        <p>Outside of technical work, I serve as a <strong>Peer Mentor</strong> at Seneca — sharpening my ability to explain complex ideas clearly and stay calm under pressure.</p>
+        <div class="tech-lbl">// Technologies</div>
+        <div class="chips">
+          <span class="chip">C / C++</span><span class="chip">Python</span>
+          <span class="chip">FreeRTOS</span><span class="chip">Linux</span>
+          <span class="chip">Kali Linux</span><span class="chip">OrCAD</span>
+          <span class="chip">Fusion 360</span><span class="chip">Arduino</span>
+          <span class="chip">VMware</span><span class="chip">NXP FRDM-K64F</span>
+          <span class="chip">Git</span><span class="chip">Bash</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="terminal">
+          <div class="t-bar">
+            <div class="d dr"></div><div class="d dy"></div><div class="d dg"></div>
+            <span class="t-name">romil@dev — profile.sh</span>
+          </div>
+          <div class="t-body">
+            <div><span class="tp">❯</span> <span class="tc">whoami</span></div>
+            <div class="to">romil_chauhan</div>
+            <div style="margin-top:.5rem"><span class="tp">❯</span> <span class="tc">cat skills.json</span></div>
+            <div class="to">{</div>
+            <div>&nbsp;&nbsp;<span class="tk">"embedded"</span>: <span class="tv">"FreeRTOS · FRDM-K64F · C"</span>,</div>
+            <div>&nbsp;&nbsp;<span class="tk">"scripting"</span>: <span class="tv">"Python · Bash"</span>,</div>
+            <div>&nbsp;&nbsp;<span class="tk">"security"</span>: <span class="tv">"Nmap · Kali · PenTest"</span>,</div>
+            <div>&nbsp;&nbsp;<span class="tk">"infra"</span>: <span class="tv">"Linux · DNS · Apache"</span>,</div>
+            <div>&nbsp;&nbsp;<span class="tk">"hardware"</span>: <span class="tv">"PCB · OrCAD · Fusion360"</span>,</div>
+            <div>&nbsp;&nbsp;<span class="tk">"status"</span>: <span class="tb">"open_to_work"</span></div>
+            <div class="to">}</div>
+            <div style="margin-top:.5rem"><span class="tp">❯</span> <span class="t-cur"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="sec-hd reveal">
+      <span class="sec-n">02</span>
+      <h2 class="sec-t">Projects</h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="proj-grid">
+
+      <div class="proj-card featured reveal">
+        <div class="feat-inner">
+          <div>
+            <span class="feat-badge">★ Flagship Project</span>
+            <div class="proj-name">FRDM-K64F Embedded Systems &amp; RTOS</div>
+            <div class="proj-desc">Programmed NXP FRDM-K64F in C with FreeRTOS — multi-task scheduling, binary semaphores, software timers, and PWM control. Built a door locking system with PIT auto-timeout and an emergency stop protocol with GPIO interrupts.</div>
+            <div class="proj-tags" style="margin-top:1rem">
+              <span class="tag ta">C</span><span class="tag ta">FreeRTOS</span>
+              <span class="tag">NXP SDK</span><span class="tag">GPIO/IRQ</span>
+              <span class="tag tg">PWM/FTM</span><span class="tag tv2">PIT Timers</span>
+            </div>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);line-height:2.1;background:var(--bg3);padding:1.3rem;border-radius:4px;border:1px solid var(--border)">
+            <span style="color:var(--accent2)">// System Summary</span><br>
+            Tasks: <span style="color:var(--accent)">3 concurrent</span><br>
+            Semaphores: <span style="color:var(--accent)">binary + sw timer</span><br>
+            IRQ: <span style="color:var(--accent)">GPIO + PIT + FTM</span><br>
+            Output: <span style="color:var(--accent)">RGB LED + UART</span><br>
+            Board: <span style="color:var(--accent4)">NXP FRDM-K64F</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-ico">🛡️</div>
+        <div class="proj-name">Cybersecurity Vulnerability Assessment</div>
+        <div class="proj-desc">Full penetration test on Metasploitable 2 in an isolated Kali Linux lab. Identified vsftpd backdoor, UnrealIRCd RCE, and credential weaknesses via Nmap NSE scripts. Formal risk report + public presentation.</div>
+        <div class="proj-tags">
+          <span class="tag tr">Kali Linux</span><span class="tag tr">Nmap</span>
+          <span class="tag">Metasploit</span><span class="tag tg">Risk Report</span>
+        </div>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-ico">🐍</div>
+        <div class="proj-name">Python Motor Control System</div>
+        <div class="proj-desc">Python app controlling an L293 H-bridge motor via LabJack UE9 over Ethernet. Forward/reverse, emergency stop, debounced reset detection, and user-gated resume logic.</div>
+        <div class="proj-tags">
+          <span class="tag ta">Python</span><span class="tag">LabJack UE9</span>
+          <span class="tag tg">Automation</span><span class="tag">Ethernet I/O</span>
+        </div>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-ico">🐧</div>
+        <div class="proj-name">Linux Network Server Deployment</div>
+        <div class="proj-desc">Full-stack Fedora 38 server-client in VMware. Configured DHCP, DNS (BIND), NFS, Samba, Apache, Sendmail, Dovecot, CUPS, and TigerVNC. Automated backups with cron + bash.</div>
+        <div class="proj-tags">
+          <span class="tag">Fedora 38</span><span class="tag ta">BIND DNS</span>
+          <span class="tag">Apache</span><span class="tag tg">Bash</span>
+        </div>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-ico">📡</div>
+        <div class="proj-name">LoRa Peer-to-Peer Wireless</div>
+        <div class="proj-desc">Wireless messaging on Heltec WiFi LoRa 32 V3 (ESP32-S3 + SX1262) at 915 MHz with OLED display feedback. Resolved radio init, library compatibility, and pin mapping issues.</div>
+        <div class="proj-tags">
+          <span class="tag ta">C++</span><span class="tag">ESP32-S3</span>
+          <span class="tag tr">LoRa 915MHz</span><span class="tag">RadioLib</span>
+        </div>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-ico">⚡</div>
+        <div class="proj-name">XOR Logic Gate Circuit + PCB</div>
+        <div class="proj-desc">4-switch light toggle using 74LS86 XOR IC with full 16-row truth table. Schematic and PCB layout in OrCAD, manual soldering of all components onto fabricated board.</div>
+        <div class="proj-tags">
+          <span class="tag ta">OrCAD</span><span class="tag">PCB Design</span>
+          <span class="tag tg">Soldering</span><span class="tag">Digital Logic</span>
+        </div>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-ico">🔌</div>
+        <div class="proj-name">AC to DC Power Supply</div>
+        <div class="proj-desc">Fully functional AC to DC transformer. PCB designed in Fusion 360, physical fabrication, component selection, assembly, and complete testing of the power supply unit.</div>
+        <div class="proj-tags">
+          <span class="tag">Fusion 360</span><span class="tag ta">PCB Design</span>
+          <span class="tag tg">Hardware Build</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="sec-hd reveal">
+      <span class="sec-n">03</span>
+      <h2 class="sec-t">Skills</h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="skills-grid">
+      <div class="sk-card reveal">
+        <div class="sk-title">Languages</div>
+        <ul class="sk-list">
+          <li>C / C++</li><li>Python</li>
+          <li>C# (.NET Framework)</li>
+          <li>Bash Scripting</li><li>SQL (learning)</li>
+        </ul>
+      </div>
+      <div class="sk-card reveal">
+        <div class="sk-title">Embedded &amp; Hardware</div>
+        <ul class="sk-list">
+          <li>NXP FRDM-K64F</li><li>FreeRTOS</li>
+          <li>GPIO / IRQ / PIT / PWM</li>
+          <li>Heltec LoRa ESP32</li>
+          <li>PCB Design (OrCAD, Fusion 360)</li>
+          <li>Soldering &amp; Assembly</li>
+        </ul>
+      </div>
+      <div class="sk-card reveal">
+        <div class="sk-title">Operating Systems</div>
+        <ul class="sk-list">
+          <li>Linux (Fedora, Ubuntu)</li>
+          <li>Kali Linux</li><li>Windows</li>
+          <li>VMware Workstation</li>
+        </ul>
+      </div>
+      <div class="sk-card reveal">
+        <div class="sk-title">Networking &amp; Security</div>
+        <ul class="sk-list">
+          <li>TCP/IP, DHCP, DNS</li>
+          <li>Nmap &amp; NSE Scripts</li>
+          <li>NFS, Samba, Apache</li>
+          <li>Firewall Config (firewalld)</li>
+          <li>Vulnerability Assessment</li>
+        </ul>
+      </div>
+      <div class="sk-card reveal">
+        <div class="sk-title">Tools &amp; Software</div>
+        <ul class="sk-list">
+          <li>KEIL Studio</li><li>Arduino IDE</li>
+          <li>TIA Portal</li>
+          <li>Git / GitHub</li>
+          <li>NXP MCUXpresso</li>
+        </ul>
+      </div>
+      <div class="sk-card reveal">
+        <div class="sk-title">Certifications</div>
+        <ul class="sk-list">
+          <li>Unity Essentials Pathway</li>
+          <li>Vectorworks Core Associate</li>
+          <li>Seneca Peer Mentor Program</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="sec-hd reveal">
+      <span class="sec-n">04</span>
+      <h2 class="sec-t">Experience</h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="tl">
+      <div class="tl-item reveal">
+        <div class="tl-date">Sep 2023 — Present</div>
+        <div class="tl-role">Peer Mentor</div>
+        <div class="tl-org">
+          Seneca Polytechnic · Toronto, ON
+          <span class="org-tag">Part-time</span>
+        </div>
+        <ul class="tl-pts">
+          <li>Selected to guide incoming students through orientation, academic challenges, and campus resource navigation</li>
+          <li>Facilitated structured one-on-one and group mentoring sessions for first-semester cohorts</li>
+          <li>Built strong communication skills through consistent conversations with students from diverse technical backgrounds</li>
+          <li>Developed ability to explain complex technical concepts clearly — directly transferable to engineering support roles</li>
+        </ul>
+      </div>
+    </div>
+    <div class="edu-card reveal">
+      <div>
+        <div class="tl-date" style="margin-bottom:.5rem">Sep 2023 — Apr 2026</div>
+        <div class="edu-deg">Advanced Diploma — Computer Engineering Technology</div>
+        <div class="edu-sch">Seneca Polytechnic · Toronto, ON</div>
+        <div class="chips">
+          <span class="chip" style="font-size:.57rem">Embedded Systems</span>
+          <span class="chip" style="font-size:.57rem">FreeRTOS</span>
+          <span class="chip" style="font-size:.57rem">OOP (C/C++/C#)</span>
+          <span class="chip" style="font-size:.57rem">Cybersecurity</span>
+          <span class="chip" style="font-size:.57rem">Linux Admin</span>
+          <span class="chip" style="font-size:.57rem">Digital Electronics</span>
+          <span class="chip" style="font-size:.57rem">Wireless Comms</span>
+          <span class="chip" style="font-size:.57rem">Cloud Computing</span>
+        </div>
+        <div class="tl-date" style="margin-top:1rem">Industry Partnerships · Microsoft · Google · Cisco</div>
+      </div>
+      <div class="edu-stat">
+        <div class="edu-gpa">3.0</div>
+        <div class="edu-gpa-l">CGPA</div>
+        <div class="edu-yr">Graduating '26</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="ct-inner reveal">
+      <div class="ct-tag">Let's Connect</div>
+      <h2 class="ct-head">Get In <span class="stroke">Touch</span></h2>
+      <p class="ct-sub">
+        Actively looking for part-time roles and internships in embedded systems,
+        IT infrastructure, or software development. If you have an opportunity
+        or just want to talk tech — my inbox is open.
+      </p>
+      <div class="ct-links">
+        <a href="mailto:chauhanromil1@gmail.com" class="ct-link">✉ Email Me</a>
+        <a href="https://linkedin.com/in/romilchauhan1111" target="_blank" class="ct-link">⌗ LinkedIn</a>
+        <a href="https://github.com" target="_blank" class="ct-link">◈ GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fl">© 2026 Romil Chauhan — Built with HTML · CSS · JS</div>
+    <div class="fr">Crafted with <span>♥</span> in Toronto, ON</div>
+  </footer>
+
+</div>
+
+<script>
+// ── HAMBURGER ──
+const hbg  = document.getElementById('hbg');
+const mnav = document.getElementById('mnav');
+hbg.addEventListener('click', () => {
+  hbg.classList.toggle('open');
+  mnav.classList.toggle('open');
+});
+function closeMenu() {
+  hbg.classList.remove('open');
+  mnav.classList.remove('open');
+}
+
+// ── SCROLL REVEAL ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('vis'), i * 60);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: .08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── ACTIVE NAV ──
+const sections = document.querySelectorAll('section[id]');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 200) cur = s.id; });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--accent)' : '';
+  });
+}, { passive: true });
+
+// ── COUNTER ANIMATION ──
+const statObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const count  = el.dataset.count;
+    const suffix = el.dataset.suffix || '';
+    const float  = el.dataset.float;
+    let start = null;
+    const dur = 900;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      if (float) {
+        el.textContent = (ease * parseFloat(float)).toFixed(1);
+      } else {
+        el.textContent = Math.floor(ease * parseInt(count)) + (p >= 1 ? suffix : '');
+      }
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    statObs.unobserve(el);
+  });
+}, { threshold: .6 });
+document.querySelectorAll('.stat-n').forEach(el => statObs.observe(el));
+</script>
+</body>
+</html>
